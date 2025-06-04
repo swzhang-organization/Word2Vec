@@ -7,8 +7,8 @@
 <body>
     <h1>Word2Vec Similarity</h1>
     <form method="post">
-        <label for="target">Target word/phrase:</label><br>
-        <input type="text" id="target" name="target" size="40" value="{{ target or '' }}"><br><br>
+        <label for="targets">Target words/phrases (one per line):</label><br>
+        <textarea id="targets" name="targets" rows="5" cols="40">{{ targets_text or '' }}</textarea><br><br>
         <label for="items">Words/phrases (one per line):</label><br>
         <textarea id="items" name="items" rows="10" cols="40">{{ items_text or '' }}</textarea><br><br>
         <input type="submit" value="Compute">
@@ -16,11 +16,18 @@
     {% if results %}
     <h2>Results</h2>
     <table border="1" cellpadding="5" cellspacing="0">
-        <tr><th>Word/Phrase</th><th>Similarity</th></tr>
-        {% for word, sim in results %}
         <tr>
-            <td>{{ word }}</td>
-            <td>{{ '{:.4f}'.format(sim) if sim is not none else 'N/A' }}</td>
+            <th></th>
+            {% for item in items %}
+            <th>{{ item }}</th>
+            {% endfor %}
+        </tr>
+        {% for target, row in targets|zip(results) %}
+        <tr>
+            <th>{{ target }}</th>
+            {% for sim in row %}
+            <td style="background-color: {{ sim|sim_color }}">{{ '{:.4f}'.format(sim) if sim is not none else 'N/A' }}</td>
+            {% endfor %}
         </tr>
         {% endfor %}
     </table>
