@@ -49,6 +49,12 @@ def similarity_to_color(sim):
     return f'#{r:02x}{g:02x}{b:02x}'
 
 
+@app.template_filter('zip')
+def zip_lists(a, b):
+    """Allow zipping two lists in Jinja templates."""
+    return zip(a, b)
+
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
