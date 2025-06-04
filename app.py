@@ -18,30 +18,48 @@ def phrase_vector(text):
     return np.mean(vectors, axis=0)
 
 
-def compute_similarity(target, items):
-    """Compute similarity scores for a list of words/phrases."""
-    target_vec = phrase_vector(target)
-    results = []
-    for item in items:
-        item_vec = phrase_vector(item)
-        if target_vec is None or item_vec is None:
-            sim = None
-        else:
-            sim = float(np.dot(target_vec, item_vec) /
-                        (np.linalg.norm(target_vec) * np.linalg.norm(item_vec)))
-        results.append((item, sim))
-    return results
+def compute_similarity_matrix(targets, items):
+    """Compute similarity matrix for multiple targets and items."""
+    target_vecs = [phrase_vector(t) for t in targets]
+    item_vecs = [phrase_vector(i) for i in items]
+
+    matrix = []
+    for tvec in target_vecs:
+        row = []
+        for ivec in item_vecs:
+            if tvec is None or ivec is None:
+                sim = None
+            else:
+                sim = float(np.dot(tvec, ivec) /
+                            (np.linalg.norm(tvec) * np.linalg.norm(ivec)))
+            row.append(sim)
+        matrix.append(row)
+    return matrix
+
+
+@app.template_filter('sim_color')
+def similarity_to_color(sim):
+    """Return a color hex based on similarity for green gradient."""
+    if sim is None:
+        return '#ffffff'
+    val = max(0.0, min(1.0, sim))
+    r = int(255 * (1 - val))
+    g = 255
+    b = int(255 * (1 - val))
+    return f'#{r:02x}{g:02x}{b:02x}'
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        target = request.form.get('target', '')
+        targets_text = request.form.get('targets', '')
         items_text = request.form.get('items', '')
+        targets = [line.strip() for line in targets_text.splitlines() if line.strip()]
         items = [line.strip() for line in items_text.splitlines() if line.strip()]
-        results = compute_similarity(target, items)
-        return render_template('index.html', results=results,
-                               target=target, items_text=items_text)
+        matrix = compute_similarity_matrix(targets, items)
+        return render_template('index.html', results=matrix,
+                               targets=targets, items=items,
+                               targets_text=targets_text, items_text=items_text)
     return render_template('index.html')
 
 
