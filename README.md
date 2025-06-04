@@ -1,2 +1,24 @@
-# Word2Vec
-word2vec similarity meter
+# Word2Vec Similarity Web App
+
+This project provides a simple Flask application that computes the
+semantic similarity between a target word or phrase and a list of
+words/phrases using a pre‑trained Word2Vec model.
+
+## Running the app
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Start the web server:
+   ```bash
+   python app.py
+   ```
+
+3. Open your browser at [http://localhost:5000](http://localhost:5000)
+   and enter a target word or phrase along with one word or phrase per
+   line to compare.
+
+The first run may download the small `glove-wiki-gigaword-50` model if
+not present in the local `gensim` cache.
